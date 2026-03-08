@@ -1,41 +1,110 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useUsername } from "@/hooks/use-username";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/client";
+import { Loading } from "@/components/ui/loading";
 
 const Lobby = () => {
-  const router = useRouter();
-  // const pathname = usePathname();
-  // const searchParams = useSearchParams();
-
   const { username } = useUsername();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [maxConnected, setMaxConnected] = useState(2);
+  const [isNavigating, startTransition] = useTransition();
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const searchParams = useSearchParams();
+  const wasDestroyed = searchParams.get("destroyed") === "true";
+  const error = searchParams.get("error");
+  const searchParamsString = searchParams.toString();
 
-  const { mutate: handleCreateRoom } = useMutation({
-    mutationFn: async() => {
-      const response = await client.room.create.post()
+  useEffect(() => {
+    if (!searchParamsString) return;
 
-      if (response.status === 200) {
-        router.push(`/room/${response?.data?.roomId}`) // Navigate to the newly created room
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    timerRef.current = setTimeout(() => {
+      // Only replace if we're still on the home page
+      if (pathname === "/") {
+        router.replace(pathname);
+      }
+    }, 5000);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [pathname, router, searchParamsString]);
+
+  // Clear timer when navigation starts
+  useEffect(() => {
+    if (isNavigating && timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, [isNavigating]);
+
+  const { mutate: createRoom, isPending } = useMutation({
+    mutationFn: async () => {
+      const res = await client.room.create.post({ maxConnected });
+
+      if (res.status === 200) {
+        // Clear timer before navigating
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+          timerRef.current = null;
+        }
+        
+        startTransition(() => {
+          router.push(`/room/${res.data?.roomId}`);
+        });
       }
     },
   });
 
+  const isLoading = isPending || isNavigating;
+
   return (
     <main className="flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        {/* <div className="relative overflow-hidden bg-destructive/15 border border-destructive/50 p-4 text-center">
+      {isNavigating && (
+        <Loading overlay message="Navigating to room..." />
+      )}
+      <div className="w-full max-w-md space-y-8 ">
+        {wasDestroyed && (
+          <div className="relative overflow-hidden bg-destructive/15 border border-destructive/50 p-4 text-center">
             <p className="text-destructive text-sm font-bold">ROOM DESTROYED</p>
             <p className="text-muted-foreground text-xs mt-1">
               All messages were permanently deleted.
             </p>
             <div className="warning-progress-bar" />
-          </div> */}
+          </div>
+        )}
+        {error === "room-not-found" && (
+          <div className="relative overflow-hidden bg-destructive/15 border border-destructive/50 p-4 text-center">
+            <p className="text-destructive text-sm font-bold">ROOM NOT FOUND</p>
+            <p className="text-muted-foreground text-xs mt-1">
+              This room may have expired or never existed.
+            </p>
+            <div className="warning-progress-bar" />
+          </div>
+        )}
+        {error === "room-full" && (
+          <div className="relative overflow-hidden bg-destructive/15 border border-destructive/50 p-4 text-center">
+            <p className="text-destructive text-sm font-bold">ROOM FULL</p>
+            <p className="text-muted-foreground text-xs mt-1">
+              This room is at maximum capacity.
+            </p>
+            <div className="warning-progress-bar" />
+          </div>
+        )}
 
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight text-primary">
@@ -68,15 +137,15 @@ const Lobby = () => {
                   type="number"
                   min={1}
                   max={20}
-                  // value={maxConnected}
-                  // onChange={(e) => {
-                  //   const value = Number(e.target.value);
-                  //   if (Number.isNaN(value)) {
-                  //     setMaxConnected(1);
-                  //     return;
-                  //   }
-                  //   setMaxConnected(Math.max(1, Math.min(20, value)));
-                  // }}
+                  value={maxConnected}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (Number.isNaN(value)) {
+                      setMaxConnected(1);
+                      return;
+                    }
+                    setMaxConnected(Math.max(1, Math.min(20, value)));
+                  }}
                   className="flex-1 rounded-md bg-background border border-border px-3 py-2 text-sm text-foreground"
                 />
               </div>
@@ -86,13 +155,12 @@ const Lobby = () => {
             </div>
 
             <Button
-              onClick={() => handleCreateRoom()}
+              onClick={() => createRoom()}
               className="w-full"
               size="lg"
-              // disabled={!username || isLoading}
+              disabled={!username || isLoading}
             >
-              CREATE SECURE ROOM
-              {/* {isLoading ? "CREATING..." : "CREATE SECURE ROOM"} */}
+              {isLoading ? "CREATING..." : "CREATE SECURE ROOM"}
             </Button>
           </div>
         </div>

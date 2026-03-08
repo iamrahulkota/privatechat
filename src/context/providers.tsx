@@ -18,12 +18,12 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       disableTransitionOnChange
     >
       <ThemeDataProvider>
-        {/* <RealtimeProvider> */}
+        <RealtimeProvider>
           <QueryClientProvider client={queryClient}>
             {children}
             <Toaster />
           </QueryClientProvider>
-        {/* </RealtimeProvider> */}
+        </RealtimeProvider>
       </ThemeDataProvider>
     </NextThemeProvider>
   );
