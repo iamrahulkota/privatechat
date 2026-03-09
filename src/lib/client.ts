@@ -20,6 +20,7 @@ const getApiUrl = () => {
   
   // Fallback to localhost for local development
   return "http://localhost:3000"
+  
 }
 
 export const client = treaty<App>(getApiUrl()).api
