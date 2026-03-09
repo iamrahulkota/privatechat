@@ -14,9 +14,9 @@ const getApiUrl = () => {
   }
   
   // Server-side: use Vercel URL if available, otherwise localhost
-  // if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-  //   return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  // }
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  }
   
   // Fallback to localhost for local development
   return "http://localhost:3000"

@@ -1,6 +1,4 @@
-# 🔒 Private Chat - Real-time Self-Destructing Chat Rooms
-
-A modern, real-time chat application built with Next.js 16 that creates private, self-destructing chat rooms. Share a room link and chat securely with automatic message deletion after 10 minutes.
+Private Chat - Real-time Self-Destructing Chat Rooms A modern, real-time chat application built with Next.js 16 that creates private, self-destructing chat rooms. Share a room link and chat securely with automatic message deletion after 10 minutes.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.2-blue?style=flat-square&logo=react)
@@ -36,67 +34,6 @@ A modern, real-time chat application built with Next.js 16 that creates private,
 - **Upstash Realtime** - Real-time pub/sub messaging
 - **Eden Treaty** - Type-safe API client
 
-## 📋 Prerequisites
-
-- **Node.js** 18+ or **Bun** runtime
-- **Upstash Account** - For Redis and Realtime services
-  - Create a Redis database at [Upstash Console](https://console.upstash.com/)
-  - Get your REST URL and token
-
-## 🚀 Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/iamrahulkota/privatechat.git
-cd privatechat
-```
-
-### 2. Install Dependencies
-
-Using Bun (recommended):
-```bash
-bun install
-```
-
-Or using npm:
-```bash
-npm install
-```
-
-### 3. Environment Variables
-
-Create a `.env.local` file in the root directory:
-
-```env
-# Upstash Redis Configuration
-UPSTASH_REDIS_REST_URL=your_redis_rest_url
-UPSTASH_REDIS_REST_TOKEN=your_redis_rest_token
-
-# Optional: Custom API URL (for production)
-NEXT_PUBLIC_API_URL=https://your-domain.com
-```
-
-Get your Upstash credentials:
-1. Go to [Upstash Console](https://console.upstash.com/)
-2. Create a new Redis database
-3. Copy the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
-
-### 4. Run Development Server
-
-Using Bun:
-```bash
-bun run dev
-```
-
-Or using npm:
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## 📖 Usage
 
 ### Creating a Chat Room
 
@@ -119,57 +56,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - **Theme Toggle** - Switch between light and dark modes
 - **Color Themes** - Customize theme colors
 
-## 📁 Project Structure
-
-```
-nextjs16_realtime_chat/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── (app)/              # Main app routes
-│   │   │   ├── page.tsx        # Home page (room creation)
-│   │   │   └── layout.tsx      # App layout
-│   │   ├── room/
-│   │   │   └── [roomId]/      # Dynamic room route
-│   │   │       └── page.tsx    # Chat room interface
-│   │   └── api/                # API routes
-│   │       ├── [[...slugs]]/   # Elysia API handler
-│   │       └── realtime/       # Realtime WebSocket handler
-│   ├── components/
-│   │   ├── custom/             # Custom components
-│   │   │   ├── theme-color-toggle.tsx
-│   │   │   └── animated-theme-toggler.tsx
-│   │   └── ui/                 # shadcn/ui components
-│   ├── lib/
-│   │   ├── client.ts           # Eden Treaty API client
-│   │   ├── redis.ts            # Upstash Redis client
-│   │   ├── realtime.ts         # Realtime server setup
-│   │   └── realtime-client.ts  # Realtime client hooks
-│   ├── hooks/                  # Custom React hooks
-│   └── context/                # React context providers
-├── public/                     # Static assets
-├── package.json
-├── tsconfig.json
-└── next.config.ts
-```
-
-## 🔧 Development
-
-### Available Scripts
-
-```bash
-# Start development server
-bun run dev
-
-# Build for production
-bun run build
-
-# Start production server
-bun run start
-
-# Run linter
-bun run lint
-```
-
 ### Key Implementation Details
 
 - **Room Management**: Rooms are stored in Redis with a 10-minute TTL
@@ -177,27 +63,6 @@ bun run lint
 - **Real-time Updates**: Upstash Realtime for instant message delivery
 - **Message History**: Messages stored in Redis lists, synced with room TTL
 - **User Tracking**: Connected users tracked per room with max capacity
-
-## 🌐 Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Import project in [Vercel](https://vercel.com)
-3. Add environment variables:
-   - `UPSTASH_REDIS_REST_URL`
-   - `UPSTASH_REDIS_REST_TOKEN`
-4. Deploy!
-
-### Other Platforms
-
-The app can be deployed to any platform supporting Next.js:
-- **Netlify**
-- **Railway**
-- **Render**
-- **AWS Amplify**
-
-Make sure to set the environment variables in your deployment platform.
 
 ## 🔒 Security Features
 
